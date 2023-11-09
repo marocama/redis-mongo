@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  node:
+    build:
+      context: node
+    container_name: node
+    tty: true 
+    ports:
+      - 4000:4000
+    volumes:
+      - ./node:/home/node/app
+    networks:
+      - node-network
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    tty: true
+    ports: 
+      - 27017:27017
+    volumes:
+      - ./mongo:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks: 
+      - node-network
+  
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    tty: true
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+    networks:
+      - node-network
+
+  redis:
+    image: redis
+    container_name: redis
+    command: redis-server
+    restart: always
+    tty: true
+    ports: 
+      - 6379:6379
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    driver: bridge
